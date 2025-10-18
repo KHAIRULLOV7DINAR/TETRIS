@@ -16,35 +16,39 @@ export default class Game{
         const renderPlayfield = [];
 
         // 1. КОПИРУЕМ ИГРОВОЕ ПОЛЕ
-        for (let y = 0; y < this.playfieldHeight; y++) {
+        for (let y = 0; y < this.playfieldHeight; y++)
+        {
             renderPlayfield[y] = [];
-            for (let x = 0; x < this.playfieldWidth; x++) {
+            for (let x = 0; x < this.playfieldWidth; x++)
+            {
                 renderPlayfield[y][x] = this.playfield[y][x];
             }
         }
 
         // 2. ПРОВЕРКА АКТИВНОЙ ФИГУРЫ
-        if (!this.activePiece || !this.activePiece.blocks) {
+        if (!this.activePiece || !this.activePiece.blocks)
+        {
             console.error('Active piece or blocks are undefined');
             return renderPlayfield;
         }
 
         // 3. ПОЛУЧАЕМ ДАННЫЕ АКТИВНОЙ ФИГУРЫ
-        const { x: fieldX, y: fieldY, blocks } = this.activePiece;
+        const { x: fieldX, y: fieldY, blocks, randomIndex } = this.activePiece;
         const sizeY = blocks.length;
         const sizeX = blocks[0].length;
 
         // 4. ДОБАВЛЯЕМ АКТИВНУЮ ФИГУРУ НА ПОЛЕ
         for (let blockY = 0; blockY < sizeY; blockY++) {
             for (let blockX = 0; blockX < sizeX; blockX++) {
-                if (blocks[blockY][blockX]) { // ← ИСПРАВЛЕНИЕ: blocks, а не activePiece
+                if (blocks[blockY][blockX])
+                {
                     const renderY = fieldY + blockY;
                     const renderX = fieldX + blockX;
 
                     // Проверяем границы
                     if (renderY >= 0 && renderY < this.playfieldHeight &&
                         renderX >= 0 && renderX < this.playfieldWidth) {
-                        renderPlayfield[renderY][renderX] = blocks[blockY][blockX];
+                        renderPlayfield[renderY][renderX] = blocks[blockY][blockX] * randomIndex;
                     }
                 }
             }
@@ -80,7 +84,8 @@ export default class Game{
             blocks: newPiece.blocks,
             rotations: newPiece.rotations,
             leftRightBottom: newPiece.leftRightBottom,
-            color: newPiece.color
+            color: newPiece.color,
+            randomIndex: newPiece.randomIndex
         };
     }
 
@@ -221,6 +226,7 @@ export default class Game{
         else
         {
             this.placeOnField();
+            this.clearLines();
             this.activePiece = this.setNewActivePiece();
         }
     }
@@ -234,8 +240,8 @@ export default class Game{
         {
             this.activePiece.y += fieldStep;
         }
-
         this.placeOnField();
+        this.clearLines();
         this.activePiece = this.setNewActivePiece();
 
     }
@@ -244,6 +250,7 @@ export default class Game{
     {
         const {x, y} = this.activePiece;
         const blocks = this.activePiece.blocks;
+        const randomIndex = this.activePiece.randomIndex;
         const sizeY = blocks.length;
         const sizeX = blocks[0].length;
 
@@ -253,9 +260,49 @@ export default class Game{
             {
                 if(blocks[blockY][blockX] !== 0)
                 {
-                    this.playfield[y + blockY][x + blockX] = blocks[blockY][blockX];
+                    this.playfield[y + blockY][x + blockX] = blocks[blockY][blockX] * randomIndex;
                 }
             }
         }
+    }
+
+    clearLines()
+    {
+        const width = this.playfieldWidth;
+        const height = this.playfieldHeight;
+        let lines = [];
+
+        for (let y = height - 1; y > 0; y--)
+        {
+            let blockNumber = 0;
+            for (let x = 0; x < width; x++)
+            {
+                if(this.playfield[y][x])
+                {
+                    blockNumber++;
+                }
+            }
+
+            if(blockNumber === 0)
+            {
+                break;
+            }
+            else if(blockNumber < width)
+            {
+                continue;
+            }
+            else
+            {
+                lines.unshift(y);
+            }
+        }
+
+        for(let index of lines)
+        {
+            this.playfield.splice(index, 1);
+            this.playfield.unshift(new Array(width).fill(0));
+        }
+
+        console.log(lines);
     }
 }

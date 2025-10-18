@@ -1,5 +1,14 @@
 export default class View
 {
+     colors = [
+        'red',
+        'orange',
+        'yellow',
+        'green',
+        'blue',
+        'pink',
+        'purple',
+    ]
     constructor(element, width, height, rows, columns)
     {
         this.element = element;
@@ -37,7 +46,7 @@ export default class View
 
                 if(block)
                 {
-                    this.renderBlock(x * this.blockWidth, y * this.blockHeight, this.blockWidth, this.blockHeight, 'red');
+                    this.renderBlock(x * this.blockWidth, y * this.blockHeight, this.blockWidth, this.blockHeight, this.colors[block - 1]);
                 }
             }
         }

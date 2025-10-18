@@ -251,7 +251,7 @@ export default class PieceManager {
         'yellow',
         'green',
         'blue',
-        '#0b15d6',
+        'pink',
         'purple',
     ]
 
@@ -268,6 +268,7 @@ export default class PieceManager {
             rotation : 0,
             blocks : this.Pieces[pieceType][0],
             color : this.colors[randomIndex],
+            randomIndex: randomIndex + 1,
         }
     }
 }
