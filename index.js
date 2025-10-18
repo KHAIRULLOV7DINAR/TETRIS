@@ -28,8 +28,8 @@ document.addEventListener('keydown', event => {
             view.render(game.getState());
             break;
         case ' ':
-            game.placeOnField();
-            view.renderPlayfield(game.getState());
+            game.moveToBottom();
+            view.render(game.getState());
             break;
         // case 'p':
         // case 'P':

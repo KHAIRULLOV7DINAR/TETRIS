@@ -225,6 +225,21 @@ export default class Game{
         }
     }
 
+    moveToBottom()
+    {
+        let horVerFlag = false;
+        let fieldStep = 1;
+
+        while ( !(this.isPieceOutOfBordersOrCollide(horVerFlag, fieldStep)) )
+        {
+            this.activePiece.y += fieldStep;
+        }
+
+        this.placeOnField();
+        this.activePiece = this.setNewActivePiece();
+
+    }
+
     placeOnField()
     {
         const {x, y} = this.activePiece;
