@@ -4,7 +4,9 @@ export default class Controller
     {
         this.game = game;
         this.view = view;
-        this.keysPressed = new Set();
+
+        this.upFlag = true;
+
 
         setInterval(() =>
         {
@@ -18,26 +20,18 @@ export default class Controller
 
     handleKeyDown(event)
     {
-        // Предотвращаем стандартное поведение для игровых клавиш
-        const gameKeys = ['ArrowLeft', 'ArrowUp', 'ArrowRight', 'ArrowDown', ' '];
-        if (gameKeys.includes(event.key)) {
-            event.preventDefault(); // ← ЭТО ГЛАВНОЕ ИСПРАВЛЕНИЕ
-        }
-
-        if (this.keysPressed.has(event.key)) {
-            return;
-        }
-
-        this.keysPressed.add(event.key);
-
         switch (event.key) {
             case 'ArrowLeft':
                 this.game.movePieceLeft();
                 this.view.render(this.game.getState());
                 break;
             case 'ArrowUp':
-                this.game.rotatePiece();
-                this.view.render(this.game.getState());
+                if (this.upFlag)
+                {
+                    this.upFlag = false;
+                    this.game.rotatePiece();
+                    this.view.render(this.game.getState());
+                }
                 break;
             case 'ArrowRight':
                 this.game.movePieceRight();
@@ -56,6 +50,10 @@ export default class Controller
 
     handleKeyUp(event)
     {
-        this.keysPressed.delete(event.key);
+        switch (event.key)
+        {
+            case 'ArrowUp':
+                this.upFlag = true;
+        }
     }
 }

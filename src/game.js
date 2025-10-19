@@ -5,6 +5,13 @@ export default class Game{
     lines = 0;
     level = 0;
 
+    static points = {
+        '1' : 40,
+        '2' : 100,
+        '3' : 300,
+        '4' : 1200
+    };
+
     playfieldWidth = 10;
     playfieldHeight = 20;
     playfield = this.createPlayfield();
@@ -38,8 +45,10 @@ export default class Game{
         const sizeX = blocks[0].length;
 
         // 4. ДОБАВЛЯЕМ АКТИВНУЮ ФИГУРУ НА ПОЛЕ
-        for (let blockY = 0; blockY < sizeY; blockY++) {
-            for (let blockX = 0; blockX < sizeX; blockX++) {
+        for (let blockY = 0; blockY < sizeY; blockY++)
+        {
+            for (let blockX = 0; blockX < sizeX; blockX++)
+            {
                 if (blocks[blockY][blockX])
                 {
                     const renderY = fieldY + blockY;
@@ -47,12 +56,15 @@ export default class Game{
 
                     // Проверяем границы
                     if (renderY >= 0 && renderY < this.playfieldHeight &&
-                        renderX >= 0 && renderX < this.playfieldWidth) {
+                        renderX >= 0 && renderX < this.playfieldWidth)
+                    {
                         renderPlayfield[renderY][renderX] = blocks[blockY][blockX] * randomIndex;
                     }
                 }
             }
         }
+
+
 
         return renderPlayfield;
     }
@@ -226,7 +238,9 @@ export default class Game{
         else
         {
             this.placeOnField();
-            this.clearLines();
+            let clearedLines = String(this.clearLines());
+            this.updateScoreClearLines(clearedLines);
+            this.updateLevel();
             this.activePiece = this.setNewActivePiece();
         }
     }
@@ -241,7 +255,9 @@ export default class Game{
             this.activePiece.y += fieldStep;
         }
         this.placeOnField();
-        this.clearLines();
+        let clearedLines = String(this.clearLines());
+        this.updateScoreClearLines(clearedLines);
+        this.updateLevel();
         this.activePiece = this.setNewActivePiece();
 
     }
@@ -303,6 +319,22 @@ export default class Game{
             this.playfield.unshift(new Array(width).fill(0));
         }
 
-        console.log(lines);
+        return lines.length;
     }
+
+    updateScoreClearLines(clearedLines){
+        if (clearedLines > 0)
+        {
+            this.score += (this.level + 1) * Game.points[clearedLines];
+            this.lines += Number(clearedLines);
+            console.log(this.score);
+        }
+    }
+
+    updateLevel(){
+        this.level = Math.floor(this.lines / 10);
+        console.log(this.level);
+    }
+
+
 }
