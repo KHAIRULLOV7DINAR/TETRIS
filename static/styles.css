@@ -22,7 +22,7 @@ body
     /*gap: 20px;*/
     background-color: black;
     padding: 15px;
-    border: 15px solid gray;
+    border: 15px solid black;
     border-radius: 15px;
     box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
 }

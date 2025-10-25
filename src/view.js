@@ -33,7 +33,50 @@ export default class View {
 
     render(playfield) {
         this.clearScreen();
+        this.renderGrid();
         this.renderPlayfield(playfield);
+    }
+
+    renderGrid()
+    {
+        this.context.save();
+
+        this.context.strokeStyle = 'rgba(255, 255, 255, 0.2)'; // Полупрозрачные белые линии
+        this.context.lineWidth = 1;
+
+        // Вертикальные линии
+        for (let x = 0; x <= this.width; x += this.blockWidth)
+        {
+            this.context.beginPath();
+            this.context.moveTo(x, 0);
+            this.context.lineTo(x, this.height);
+            this.context.stroke();
+        }
+
+        // Горизонтальные линии
+        for (let y = 0; y <= this.height; y += this.blockHeight)
+        {
+            this.context.beginPath();
+            this.context.moveTo(0, y);
+            this.context.lineTo(this.width, y);
+            this.context.stroke();
+        }
+
+        this.context.restore();
+    }
+
+    renderBlock(x, y, width, height, color, alpha)
+    {
+        this.context.save(); //изоляция прозрачности
+
+        this.context.fillStyle = color;
+        this.context.globalAlpha = alpha;
+        this.context.strokeStyle = 'black';
+        this.context.lineWidth = 2;
+        this.context.fillRect(x, y, width, height);
+        this.context.strokeRect(x, y, width, height);
+
+        this.context.restore();
     }
 
     renderPlayfield(playfield) {
@@ -67,16 +110,8 @@ export default class View {
         }
     }
 
-    clearScreen() {
+    clearScreen()
+    {
         this.context.clearRect(0, 0, this.canvas.width, this.canvas.height);
-    }
-
-    renderBlock(x, y, width, height, color, alpha) {
-        this.context.fillStyle = color;
-        this.context.globalAlpha = alpha;
-        this.context.strokeStyle = 'black';
-        this.context.lineWidth = 2;
-        this.context.fillRect(x, y, width, height);
-        this.context.strokeRect(x, y, width, height);
     }
 }
