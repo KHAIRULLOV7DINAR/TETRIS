@@ -14,7 +14,8 @@ export default class View {
         this.height = height;
 
         // Получаем canvas из HTML
-        this.canvas = document.getElementById('gameCanvas');
+        this.canvas = document.querySelector('.canvas');
+        this.scoreLine = document.querySelector('.score');
 
         console.log("Canvas:", this.canvas);
 
@@ -31,10 +32,30 @@ export default class View {
         console.log("View initialized. Block size:", this.blockWidth, this.blockHeight);
     }
 
-    render(playfield) {
+    renderBlock(x, y, width, height, color, alpha)
+    {
+        this.context.save(); //изоляция прозрачности
+
+        this.context.fillStyle = color;
+        this.context.globalAlpha = alpha;
+        this.context.strokeStyle = 'black';
+        this.context.lineWidth = 2;
+        this.context.fillRect(x, y, width, height);
+        this.context.strokeRect(x, y, width, height);
+
+        this.context.restore();
+    }
+
+    render(playfield, score) {
         this.clearScreen();
         this.renderGrid();
         this.renderPlayfield(playfield);
+        this.renderScore(score);
+    }
+
+    clearScreen()
+    {
+        this.context.clearRect(0, 0, this.canvas.width, this.canvas.height);
     }
 
     renderGrid()
@@ -61,20 +82,6 @@ export default class View {
             this.context.lineTo(this.width, y);
             this.context.stroke();
         }
-
-        this.context.restore();
-    }
-
-    renderBlock(x, y, width, height, color, alpha)
-    {
-        this.context.save(); //изоляция прозрачности
-
-        this.context.fillStyle = color;
-        this.context.globalAlpha = alpha;
-        this.context.strokeStyle = 'black';
-        this.context.lineWidth = 2;
-        this.context.fillRect(x, y, width, height);
-        this.context.strokeRect(x, y, width, height);
 
         this.context.restore();
     }
@@ -110,8 +117,11 @@ export default class View {
         }
     }
 
-    clearScreen()
-    {
-        this.context.clearRect(0, 0, this.canvas.width, this.canvas.height);
+    renderScore(score) {
+        if (this.scoreLine && this.scoreLine.textContent !== undefined) {
+            this.scoreLine.textContent = score;
+        } else {
+            console.warn("Score line element not available");
+        }
     }
 }

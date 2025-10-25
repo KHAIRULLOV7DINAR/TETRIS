@@ -1,5 +1,6 @@
 import PieceManager from './pieceManager.js';
 
+
 export default class Game{
     score = 0;
     lines = 0;
@@ -96,10 +97,12 @@ export default class Game{
             leftX: newPiece.leftRightBottom[0][0],
             rightX: newPiece.leftRightBottom[0][1],
             bottomY: newPiece.leftRightBottom[0][2],
+            currentWallJump: newPiece.wallJump[0],
             rotation: 0,
             blocks: newPiece.blocks,
             rotations: newPiece.rotations,
             leftRightBottom: newPiece.leftRightBottom,
+            wallJump: newPiece.wallJump,
             color: newPiece.color,
             randomIndex: newPiece.randomIndex
         };
@@ -154,43 +157,6 @@ export default class Game{
         return collide;
     }
 
-    isPieceOutOfBordersOrCollideRotate(blocksRotated, leftRightBottom)
-    {
-        const {x, y} = this.activePiece;
-        const [leftX, rightX, bottomY] = leftRightBottom;
-        const {playfieldWidth: width, playfieldHeight: height} = this;
-
-        const blocks = blocksRotated;
-        const sizeY = blocks.length;
-        const sizeX = blocks[0].length;
-
-
-        // Проверка выхода за границы слева, справа и снизу
-        let outOfBorder = ((x + leftX) < 0) || ((x + rightX) >= width) || ((y + bottomY) >= height);
-        if(outOfBorder)
-        {
-            return true;
-        }
-
-        let collide = false;
-
-        for(let blockY = 0; blockY < sizeY; blockY++)
-        {
-            for(let blockX = 0; blockX < sizeX; blockX++)
-            {
-                if(blocks[blockY][blockX] !== 0)
-                {
-                    if(this.playfield[y + blockY][x + blockX] !== 0)
-                    {
-                        collide = true;
-                        break;
-                    }
-                }
-            }
-        }
-        return collide;
-    }
-
     rotatePiece()
     {
         let currentPiece = this.activePiece;
@@ -198,14 +164,98 @@ export default class Game{
         let potentialRotation = (currentPiece.rotation + 1) % 4;
         let blocksRotated = currentPiece.rotations[potentialRotation];
         let leftRightBottom = currentPiece.leftRightBottom[potentialRotation];
+        let wallJumpOffsets = currentPiece.wallJump[potentialRotation]; // Получаем wall jump для новой ротации
 
-        if (!(this.isPieceOutOfBordersOrCollideRotate(blocksRotated, leftRightBottom))){
-            this.activePiece.leftX = this.activePiece.leftRightBottom[potentialRotation][0];
-            this.activePiece.rightX = this.activePiece.leftRightBottom[potentialRotation][1];
-            this.activePiece.bottomY = this.activePiece.leftRightBottom[potentialRotation][2];
-            this.activePiece.rotation = potentialRotation;
-            this.activePiece.blocks = this.activePiece.rotations[potentialRotation];
+        // Пробуем обычное вращение
+        if (!this.isPieceOutOfBordersOrCollideRotate(blocksRotated, leftRightBottom, false, 0)) {
+            this.applyRotation(potentialRotation, 0, 0);
         }
+        // Пробуем wall kick варианты
+        else {
+            let foundValidPosition = false;
+
+            // Пробуем разные смещения для wall kick
+            const kickTests = [
+                [wallJumpOffsets[0], 0],  // смещение влево
+                [wallJumpOffsets[1], 0],  // смещение вправо
+                [0, wallJumpOffsets[2]],  // смещение вверх
+                [wallJumpOffsets[0], wallJumpOffsets[2]], // влево + вверх
+                [wallJumpOffsets[1], wallJumpOffsets[2]], // вправо + вверх
+            ];
+
+            for (let [kickX, kickY] of kickTests) {
+                if (!this.isPieceOutOfBordersOrCollideRotate(blocksRotated, leftRightBottom, true, kickX, kickY)) {
+                    this.applyRotation(potentialRotation, kickX, kickY);
+                    foundValidPosition = true;
+                    break;
+                }
+            }
+
+            // Если ни один wall kick не сработал, вращение не происходит
+            if (!foundValidPosition) {
+                console.log("No valid wall kick position found");
+            }
+        }
+    }
+
+// Обновленный метод проверки коллизий для вращения с учетом смещений
+    isPieceOutOfBordersOrCollideRotate(blocksRotated, leftRightBottom, useOffset = false, offsetX = 0, offsetY = 0)
+    {
+        let {x, y} = this.activePiece;
+
+        if (useOffset) {
+            x += offsetX;
+            y += offsetY;
+        }
+
+        const [leftX, rightX, bottomY] = leftRightBottom;
+        const {playfieldWidth: width, playfieldHeight: height} = this;
+
+        const blocks = blocksRotated;
+        const sizeY = blocks.length;
+        const sizeX = blocks[0].length;
+
+        // Проверка выхода за границы
+        let outOfBorder = ((x + leftX) < 0) || ((x + rightX) >= width) || ((y + bottomY) >= height);
+        if(outOfBorder) {
+            return true;
+        }
+
+        // Проверка столкновения с другими блоками
+        for(let blockY = 0; blockY < sizeY; blockY++) {
+            for(let blockX = 0; blockX < sizeX; blockX++) {
+                if(blocks[blockY][blockX] !== 0) {
+                    const fieldY = y + blockY;
+                    const fieldX = x + blockX;
+
+                    // Проверяем границы
+                    if (fieldX < 0 || fieldX >= width || fieldY >= height) {
+                        return true;
+                    }
+
+                    // Проверяем столкновение с блоками (только если полеY >= 0)
+                    if (fieldY >= 0 && this.playfield[fieldY][fieldX] !== 0) {
+                        return true;
+                    }
+                }
+            }
+        }
+        return false;
+    }
+
+// Обновленный метод применения вращения
+    applyRotation(potentialRotation, offsetX, offsetY) {
+        this.activePiece.x += offsetX;
+        this.activePiece.y += offsetY;
+
+        this.activePiece.leftX = this.activePiece.leftRightBottom[potentialRotation][0];
+        this.activePiece.rightX = this.activePiece.leftRightBottom[potentialRotation][1];
+        this.activePiece.bottomY = this.activePiece.leftRightBottom[potentialRotation][2];
+        this.activePiece.rotation = potentialRotation;
+        this.activePiece.blocks = this.activePiece.rotations[potentialRotation];
+        this.activePiece.currentWallJump = this.activePiece.wallJump[potentialRotation];
+
+        console.log(`Rotation applied with offset: x=${offsetX}, y=${offsetY}`);
     }
 
     movePieceLeft()

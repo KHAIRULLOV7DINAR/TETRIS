@@ -235,6 +235,53 @@ export default class PieceManager {
         ]
     };
 
+    static wallJump = {
+        [this.PieceType.I]: [
+            // I-piece имеет особые смещения
+            [-2, 1, 0],   // rotation 0: left, right, up (0->1)
+            [-1, 2, 0],   // rotation 1: left, right, up (1->2)
+            [2, -1, 0],   // rotation 2: left, right, up (2->3)
+            [1, -2, 0]    // rotation 3: left, right, up (3->0)
+        ],
+        [this.PieceType.J]: [
+            // J, L, S, T, Z используют стандартные SRS
+            [-1, 1, 0],   // rotation 0: left, right, up
+            [-1, 1, -1],  // rotation 1: left, right, up
+            [-1, 1, 0],   // rotation 2: left, right, up
+            [-1, 1, 1]    // rotation 3: left, right, up
+        ],
+        [this.PieceType.L]: [
+            [-1, 1, 0],   // rotation 0
+            [-1, 1, -1],  // rotation 1
+            [-1, 1, 0],   // rotation 2
+            [-1, 1, 1]    // rotation 3
+        ],
+        [this.PieceType.O]: [
+            [0, 0, 0],    // rotation 0
+            [0, 0, 0],    // rotation 1
+            [0, 0, 0],    // rotation 2
+            [0, 0, 0]     // rotation 3
+        ],
+        [this.PieceType.S]: [
+            [-1, 1, 0],   // rotation 0
+            [-1, 1, -1],  // rotation 1
+            [-1, 1, 0],   // rotation 2
+            [-1, 1, 1]    // rotation 3
+        ],
+        [this.PieceType.T]: [
+            [-1, 1, 0],   // rotation 0
+            [-1, 1, -1],  // rotation 1
+            [-1, 1, 0],   // rotation 2
+            [-1, 1, 1]    // rotation 3
+        ],
+        [this.PieceType.Z]: [
+            [-1, 1, 0],   // rotation 0
+            [-1, 1, -1],  // rotation 1
+            [-1, 1, 0],   // rotation 2
+            [-1, 1, 1]    // rotation 3
+        ]
+    };
+
     static piecesArray = [
         this.PieceType.I,
         this.PieceType.J,
@@ -264,6 +311,7 @@ export default class PieceManager {
             type : pieceType,
             size : this.boxSizes[pieceType],
             leftRightBottom : this.leftRightBottom[pieceType],
+            wallJump: this.wallJump[pieceType],
             rotations : this.Pieces[pieceType],
             rotation : 0,
             blocks : this.Pieces[pieceType][0],

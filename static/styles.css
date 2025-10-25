@@ -1,9 +1,11 @@
+* {
+    margin: 0;
+    padding: 0;
+}
+
 body
 {
-    margin: 0;
-    padding: 15px;
     display: flex;
-    flex-direction: column;
     align-items: center;
     justify-content: center;
     min-height: 100vh;
@@ -12,12 +14,20 @@ body
     background-position: center;
     background-repeat: no-repeat;
     font-family: 'Arial', sans-serif;
-    overflow: hidden; /* Предотвращаем скролл */
+    overflow: hidden;
 }
 
-#root {
+.game-container {
     display: flex;
-    flex-direction: column;
+    margin: auto;
+}
+
+.canvas-container {
+    display: flex;
+    margin: auto;
+}
+
+.canvas {
     align-items: center;
     /*gap: 20px;*/
     background-color: black;
@@ -28,8 +38,16 @@ body
 }
 
 h1 {
-    margin: 0;
     color: red;
     font-size: 2em;
     text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.info-canvas {
+    align-items: center;
+    background-color: lightgray;
+}
+
+.score {
+    color: red;
 }
