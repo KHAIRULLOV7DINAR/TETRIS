@@ -13,7 +13,7 @@ body
     background-size: cover;
     background-position: center;
     background-repeat: no-repeat;
-    font-family: 'Arial', sans-serif;
+    font-family: "Tiny5", sans-serif, 'Arial', sans-serif;
     overflow: hidden;
 }
 
@@ -23,8 +23,8 @@ body
 }
 
 .canvas-container {
+    margin: auto 15px;
     display: flex;
-    margin: auto;
 }
 
 .canvas {
@@ -43,11 +43,24 @@ h1 {
     text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.1);
 }
 
+.info-container {
+    margin: 15px auto;
+}
+
+h2 {
+    color: red;
+}
+
+h3 {
+    color: red;
+}
+
 .info-canvas {
     align-items: center;
-    background-color: lightgray;
+    background-color: black;
 }
 
 .score {
     color: red;
+    font-size: 2em;
 }
