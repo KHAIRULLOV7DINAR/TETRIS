@@ -19,16 +19,18 @@ export default class Controller
 
     handleKeyDown(event)
     {
+        if (this.pauseFlag)
+        {
+            if (event.key === 'Escape')
+            {
+                this.unpause();
+            }
+            return;
+        }
+
         switch (event.key) {
             case 'Escape':
-                if (this.pauseFlag)
-                {
-                    this.unpause();
-                }
-                else
-                {
-                    this.pause();
-                }
+                this.pause();
                 break;
             case 'ArrowLeft':
                 this.game.movePieceLeft();
@@ -77,8 +79,13 @@ export default class Controller
 
     update()
     {
+        if (this.pauseFlag)
+        {
+            return;
+        }
         this.game.movePieceDown();
         this.updateView();
+        this.checkLevelChange();
     }
 
     // Новый метод для обновления view и проверки изменения уровня
@@ -89,7 +96,6 @@ export default class Controller
                 lines: this.game.lines,
                 level: this.game.level
         }, this.game.nextPiece.blocks);
-        this.checkLevelChange();
     }
 
     // Метод для проверки изменения уровня
@@ -106,18 +112,30 @@ export default class Controller
     {
         this.stopTimer();
         this.pauseFlag = true;
-        this.view.render(this.game.getState());
+        this.view.render(this.game.getState(), {score: this.game.score,
+            lines: this.game.lines,
+            level: this.game.level
+        }, this.game.nextPiece.blocks);
+        this.view.renderPause();
     }
 
     unpause()
     {
         this.startTimer();
         this.pauseFlag = false;
-        this.view.render(this.game.getState());
+        this.view.render(this.game.getState(), {score: this.game.score,
+            lines: this.game.lines,
+            level: this.game.level
+        }, this.game.nextPiece.blocks);
     }
 
     startTimer()
     {
+        this.view.render(this.game.getState(), {score: this.game.score,
+            lines: this.game.lines,
+            level: this.game.level
+        }, this.game.nextPiece.blocks);
+
         const speed = this.getCurrentSpeed();
 
         if (!this.intervalID)

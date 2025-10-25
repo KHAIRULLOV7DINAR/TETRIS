@@ -209,5 +209,11 @@ export default class View {
 
         this.infoContext.restore();
     }
+
+    renderPause()
+    {
+        this.context.fillStyle = 'white';
+        this.context.fillRect(0, this.height * 3 / 8, this.width, this.height / 4);
+    }
     //=======================================================================
 }
