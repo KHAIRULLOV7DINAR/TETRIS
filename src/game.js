@@ -19,6 +19,7 @@ export default class Game{
     pieceManager = PieceManager;
 
     activePiece  = this.setNewActivePiece();
+    nextPiece = this.setNewActivePiece();
 
     getState() {
         const renderPlayfield = [];
@@ -295,7 +296,8 @@ export default class Game{
             let clearedLines = String(this.clearLines());
             this.updateScoreClearLines(clearedLines);
             this.updateLevel();
-            this.activePiece = this.setNewActivePiece();
+            this.activePiece = this.nextPiece;
+            this.nextPiece = this.setNewActivePiece();
         }
     }
 
@@ -312,7 +314,8 @@ export default class Game{
         let clearedLines = String(this.clearLines());
         this.updateScoreClearLines(clearedLines);
         this.updateLevel();
-        this.activePiece = this.setNewActivePiece();
+        this.activePiece = this.nextPiece;
+        this.nextPiece = this.setNewActivePiece();
 
     }
 

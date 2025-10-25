@@ -16,6 +16,7 @@ export default class View {
         // Получаем canvas из HTML
         this.canvas = document.querySelector('.canvas');
         this.scoreLine = document.querySelector('.score');
+        this.nextFigure = document.querySelector('.info-canvas');
 
         console.log("Canvas:", this.canvas);
 
@@ -28,6 +29,7 @@ export default class View {
         this.blockHeight = this.height / rows;
 
         this.context = this.canvas.getContext("2d");
+        this.infoContext = this.nextFigure.getContext("2d");
 
         console.log("View initialized. Block size:", this.blockWidth, this.blockHeight);
     }
@@ -46,16 +48,32 @@ export default class View {
         this.context.restore();
     }
 
-    render(playfield, score) {
+    renderBlockNext(x, y, width, height, color, alpha)
+    {
+        this.infoContext.save(); //изоляция прозрачности
+
+        this.infoContext.fillStyle = color;
+        this.infoContext.globalAlpha = alpha;
+        this.infoContext.strokeStyle = 'black';
+        this.infoContext.lineWidth = 2;
+        this.infoContext.fillRect(x, y, width, height);
+        this.infoContext.strokeRect(x, y, width, height);
+
+        this.infoContext.restore();
+    }
+
+    render(playfield, score, nextPiece) {
         this.clearScreen();
         this.renderGrid();
         this.renderPlayfield(playfield);
         this.renderScore(score);
+        this.renderNextPiece(nextPiece);
     }
 
     clearScreen()
     {
         this.context.clearRect(0, 0, this.canvas.width, this.canvas.height);
+        this.infoContext.clearRect(0, 0, this.nextFigure.width, this.nextFigure.height);
     }
 
     renderGrid()
@@ -122,6 +140,37 @@ export default class View {
             this.scoreLine.textContent = score;
         } else {
             console.warn("Score line element not available");
+        }
+    }
+
+    renderNextPiece(nextFigure){
+        for(let y = 0; y < nextFigure.length; y++)
+        {
+            const line = nextFigure[y];
+            for(let x = 0; x < line.length; x++)
+            {
+                const block = line[x];
+                if(block)
+                {
+                    let alpha;
+                    if (block > 0)
+                    {
+                        alpha = 1;
+                    }
+                    else{
+                        alpha = 0.3;
+                    }
+
+                    this.renderBlockNext(
+                        x * this.blockWidth,
+                        y * this.blockHeight,
+                        this.blockWidth,
+                        this.blockHeight,
+                        this.colors[Math.abs(block) - 1],
+                        alpha
+                    );
+                }
+            }
         }
     }
 }

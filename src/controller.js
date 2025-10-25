@@ -83,7 +83,7 @@ export default class Controller
     // Новый метод для обновления view и проверки изменения уровня
     updateView()
     {
-        this.view.render(this.game.getState(), this.game.score);
+        this.view.render(this.game.getState(), this.game.score, this.game.nextPiece.blocks);
         this.checkLevelChange();
     }
 
