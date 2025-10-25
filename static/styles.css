@@ -19,7 +19,7 @@ body
 
 .game-container {
     display: flex;
-    margin: auto;
+    margin: 0 auto;
 }
 
 .canvas-container {
@@ -28,39 +28,27 @@ body
 }
 
 .canvas {
-    align-items: center;
     /*gap: 20px;*/
     background-color: black;
-    padding: 15px;
-    border: 15px solid black;
+    padding: 10px;
     border-radius: 15px;
     box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
 }
 
-h1 {
-    color: red;
-    font-size: 2em;
-    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.1);
-}
-
 .info-container {
-    margin: 15px auto;
-}
-
-h2 {
-    color: red;
-}
-
-h3 {
-    color: red;
+    gap: 35px ;
 }
 
 .info-canvas {
-    align-items: center;
     background-color: black;
 }
 
-.score {
+.next-line, .score-line, .lines-line, .level-line {
+    color: red;
+    font-size: 2em;
+}
+
+.score, .lines, .level {
     color: red;
     font-size: 2em;
 }

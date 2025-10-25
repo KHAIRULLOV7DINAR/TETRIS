@@ -13,8 +13,10 @@ export default class View {
     {
         // Получаем элементы из HTML
         this.canvas = document.querySelector('.canvas');
-        this.scoreLine = document.querySelector('.score');
         this.nextFigure = document.querySelector('.info-canvas');
+        this.scoreLine = document.querySelector('.score');
+        this.linesLine = document.querySelector('.lines');
+        this.levelLine = document.querySelector('.level');
 
         this.context = this.canvas.getContext("2d");
         this.infoContext = this.nextFigure.getContext("2d");
@@ -34,12 +36,11 @@ export default class View {
     /*
     Итерация отрисовки
     */
-    render(playfield, score, nextPiece) {
+    render(playfield, info, nextPiece) {
         this.clearScreen();
         this.renderGrid();
         this.renderPlayfield(playfield);
-        this.renderNextPiece(nextPiece);
-        this.renderScore(score);
+        this.renderInfo(info, nextPiece);
     }
     //=======================================================================я
 
@@ -108,6 +109,15 @@ export default class View {
         }
     }
 
+    renderInfo(info, nextPiece)
+    {
+        const {score, lines, level} = info;
+        this.renderNextPiece(nextPiece);
+        this.renderScore(score);
+        this.renderLines(lines);
+        this.renderLevel(level);
+    }
+
     renderNextPiece(nextFigure){
         for(let y = 0; y < nextFigure.length; y++)
         {
@@ -141,6 +151,30 @@ export default class View {
         else
         {
             console.warn("Score line element not available");
+        }
+    }
+
+    renderLines(lines)
+    {
+        if (this.linesLine && this.linesLine.textContent !== undefined)
+        {
+            this.linesLine.textContent = lines;
+        }
+        else
+        {
+            console.warn("Lines line element not available");
+        }
+    }
+
+    renderLevel(level)
+    {
+        if (this.levelLine && this.levelLine.textContent !== undefined)
+        {
+            this.levelLine.textContent = level;
+        }
+        else
+        {
+            console.warn("Level line element not available");
         }
     }
     //=======================================================================

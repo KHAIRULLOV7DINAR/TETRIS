@@ -8,6 +8,7 @@ export default class Controller
 
         this.upFlag = true;
         this.pauseFlag = false;
+
         this.currentLevel = game.level; // Сохраняем текущий уровень
 
         this.startTimer();
@@ -83,7 +84,11 @@ export default class Controller
     // Новый метод для обновления view и проверки изменения уровня
     updateView()
     {
-        this.view.render(this.game.getState(), this.game.score, this.game.nextPiece.blocks);
+        this.view.render(this.game.getState(),
+            {score: this.game.score,
+                lines: this.game.lines,
+                level: this.game.level
+        }, this.game.nextPiece.blocks);
         this.checkLevelChange();
     }
 

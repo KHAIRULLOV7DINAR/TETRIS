@@ -12,19 +12,33 @@
 <body>
 <main class="game-container">
 
-    <div class = "canvas-container">
-        <h1>TETRIS</h1>
+    <section class = "canvas-container">
+        <h1 class = "title-tetris">TETRIS</h1>
         <canvas class="canvas" width="320" height="640"></canvas>
-    </div>
+    </section>
 
-    <div class="info-container">
-        <h2>Next</h2>
-        <canvas class="info-canvas" width="128" height="128"></canvas>
+    <section class="info-container">
+        <div class = "next-container">
+            <h2 class = "next-line">Next</h2>
+            <canvas class="info-canvas" width="128" height="128"></canvas>
+        </div>
+
         <div class="score-container">
-            <h3 class = "score-line">Score</h3>
+            <h2 class = "score-line">Score</h2>
             <span class="score">0</span>
         </div>
-    </div>
+
+        <div class = "lines-container">
+            <h2 class = "lines-line">Lines</h2>
+            <span class="lines">0</span>
+        </div>
+
+        <div class = "level-container">
+            <h2 class = "level-line">Level</h2>
+            <span class="level">0</span>
+        </div>
+
+    </section>
 
 </main>
 <script src="./index.js" type="module"></script>
