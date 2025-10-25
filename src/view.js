@@ -9,73 +9,53 @@ export default class View {
         'purple',
     ]
 
-    constructor(width, height, rows, columns) {
-        this.width = width;
-        this.height = height;
-
-        // Получаем canvas из HTML
+    constructor(width, height, rows, columns)
+    {
+        // Получаем элементы из HTML
         this.canvas = document.querySelector('.canvas');
         this.scoreLine = document.querySelector('.score');
         this.nextFigure = document.querySelector('.info-canvas');
 
-        console.log("Canvas:", this.canvas);
+        this.context = this.canvas.getContext("2d");
+        this.infoContext = this.nextFigure.getContext("2d");
 
         // Устанавливаем размеры
+        this.width = width;
+        this.height = height;
+
         this.canvas.width = this.width;
         this.canvas.height = this.height;
         this.canvas.style.border = "1px solid black";
 
         this.blockWidth = this.width / columns;
         this.blockHeight = this.height / rows;
-
-        this.context = this.canvas.getContext("2d");
-        this.infoContext = this.nextFigure.getContext("2d");
-
-        console.log("View initialized. Block size:", this.blockWidth, this.blockHeight);
     }
 
-    renderBlock(x, y, width, height, color, alpha)
-    {
-        this.context.save(); //изоляция прозрачности
-
-        this.context.fillStyle = color;
-        this.context.globalAlpha = alpha;
-        this.context.strokeStyle = 'black';
-        this.context.lineWidth = 2;
-        this.context.fillRect(x, y, width, height);
-        this.context.strokeRect(x, y, width, height);
-
-        this.context.restore();
-    }
-
-    renderBlockNext(x, y, width, height, color, alpha)
-    {
-        this.infoContext.save(); //изоляция прозрачности
-
-        this.infoContext.fillStyle = color;
-        this.infoContext.globalAlpha = alpha;
-        this.infoContext.strokeStyle = 'black';
-        this.infoContext.lineWidth = 2;
-        this.infoContext.fillRect(x, y, width, height);
-        this.infoContext.strokeRect(x, y, width, height);
-
-        this.infoContext.restore();
-    }
-
+    /*
+    Итерация отрисовки
+    */
     render(playfield, score, nextPiece) {
         this.clearScreen();
         this.renderGrid();
         this.renderPlayfield(playfield);
-        this.renderScore(score);
         this.renderNextPiece(nextPiece);
+        this.renderScore(score);
     }
+    //=======================================================================я
 
+    /*
+    Очистка канваса
+    */
     clearScreen()
     {
         this.context.clearRect(0, 0, this.canvas.width, this.canvas.height);
         this.infoContext.clearRect(0, 0, this.nextFigure.width, this.nextFigure.height);
     }
+    //=======================================================================
 
+    /*
+    Отрисовка основных элементов
+    */
     renderGrid()
     {
         this.context.save();
@@ -113,14 +93,7 @@ export default class View {
                 const block = line[x];
                 if(block)
                 {
-                    let alpha;
-                    if (block > 0)
-                    {
-                        alpha = 1;
-                    }
-                    else{
-                        alpha = 0.3;
-                    }
+                    let alpha = block > 0 ? 1 : 0.3;
 
                     this.renderBlock(
                         x * this.blockWidth,
@@ -135,14 +108,6 @@ export default class View {
         }
     }
 
-    renderScore(score) {
-        if (this.scoreLine && this.scoreLine.textContent !== undefined) {
-            this.scoreLine.textContent = score;
-        } else {
-            console.warn("Score line element not available");
-        }
-    }
-
     renderNextPiece(nextFigure){
         for(let y = 0; y < nextFigure.length; y++)
         {
@@ -152,14 +117,7 @@ export default class View {
                 const block = line[x];
                 if(block)
                 {
-                    let alpha;
-                    if (block > 0)
-                    {
-                        alpha = 1;
-                    }
-                    else{
-                        alpha = 0.3;
-                    }
+                    let alpha = block > 0 ? 1 : 0.3;
 
                     this.renderBlockNext(
                         x * this.blockWidth,
@@ -173,4 +131,49 @@ export default class View {
             }
         }
     }
+
+    renderScore(score)
+    {
+        if (this.scoreLine && this.scoreLine.textContent !== undefined)
+        {
+            this.scoreLine.textContent = score;
+        }
+        else
+        {
+            console.warn("Score line element not available");
+        }
+    }
+    //=======================================================================
+
+    /*
+    Дополнительные функции отрисовки
+    */
+    renderBlock(x, y, width, height, color, alpha)
+    {
+        this.context.save(); //изоляция прозрачности
+
+        this.context.fillStyle = color;
+        this.context.globalAlpha = alpha;
+        this.context.strokeStyle = 'black';
+        this.context.lineWidth = 2;
+        this.context.fillRect(x, y, width, height);
+        this.context.strokeRect(x, y, width, height);
+
+        this.context.restore();
+    }
+
+    renderBlockNext(x, y, width, height, color, alpha)
+    {
+        this.infoContext.save(); //изоляция прозрачности
+
+        this.infoContext.fillStyle = color;
+        this.infoContext.globalAlpha = alpha;
+        this.infoContext.strokeStyle = 'black';
+        this.infoContext.lineWidth = 2;
+        this.infoContext.fillRect(x, y, width, height);
+        this.infoContext.strokeRect(x, y, width, height);
+
+        this.infoContext.restore();
+    }
+    //=======================================================================
 }
