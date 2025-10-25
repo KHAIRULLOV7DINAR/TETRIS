@@ -6,6 +6,15 @@ export default class Game{
     lines = 0;
     level = 0;
 
+    playfieldWidth = 10;
+    playfieldHeight = 20;
+    playfield = this.createPlayfield();
+
+    pieceManager = PieceManager;
+
+    activePiece  = this.setNewActivePiece();
+    nextPiece = this.setNewActivePiece();
+
     static points = {
         '1' : 40,
         '2' : 100,
@@ -13,35 +22,21 @@ export default class Game{
         '4' : 1200
     };
 
-    playfieldWidth = 10;
-    playfieldHeight = 20;
-    playfield = this.createPlayfield();
-    pieceManager = PieceManager;
-
-    activePiece  = this.setNewActivePiece();
-    nextPiece = this.setNewActivePiece();
-
+    /*
+    Создание и return поля с зафиксированными полями, падающей фигурой и ее призраокм снизу для класса-отрисоавщика view
+    */
     getState() {
-        const renderPlayfield = [];
+        // Копируем поле
+        const renderPlayfield = this.playfield.map(row => [...row]);
 
-        // 1. КОПИРУЕМ ИГРОВОЕ ПОЛЕ
-        for (let y = 0; y < this.playfieldHeight; y++)
-        {
-            renderPlayfield[y] = [];
-            for (let x = 0; x < this.playfieldWidth; x++)
-            {
-                renderPlayfield[y][x] = this.playfield[y][x];
-            }
-        }
-
-        // 2. ДОБАВЛЯЕМ ПРИЗРАЧНУЮ ФИГУРУ (если есть активная фигура)
+        // Отрисовка призрака фигуры снизу
         if (this.activePiece && this.activePiece.blocks)
         {
             const ghostPiece = this.calculateGhostPosition();
-            this.addPieceToPlayfield(renderPlayfield, ghostPiece, -Math.abs(ghostPiece.randomIndex)); // отрицательные значения для прозрачности
+            this.addPieceToPlayfield(renderPlayfield, ghostPiece, -Math.abs(ghostPiece.randomIndex));
         }
 
-        // 3. ДОБАВЛЯЕМ АКТИВНУЮ ФИГУРУ
+        // Отрисовка падающей фигуры
         if (this.activePiece && this.activePiece.blocks)
         {
             this.addPieceToPlayfield(renderPlayfield, this.activePiece, Math.abs(this.activePiece.randomIndex));
@@ -75,41 +70,100 @@ export default class Game{
         }
     }
 
-    createPlayfield(){
+    calculateGhostPosition()
+    {
+        const ghostPiece = this.createGhostPiece();
+
+        while (!this.isGhostPieceCollide(ghostPiece))
+        {
+            ghostPiece.y += 1;
+        }
+
+        ghostPiece.y -= 1;
+
+        return ghostPiece;
+    }
+
+    isGhostPieceCollide(ghostPiece)
+    {
+        const { x, y, blocks, bottomY } = ghostPiece;
+        const sizeY = blocks.length;
+        const sizeX = blocks[0].length;
+
+        // Проверка достижения дна
+        if (y + bottomY >= this.playfieldHeight)
+        {
+            return true;
+        }
+
+        // Проверка столкновения с другими блоками
+        for (let blockY = 0; blockY < sizeY; blockY++)
+        {
+            for (let blockX = 0; blockX < sizeX; blockX++)
+            {
+                if (blocks[blockY][blockX] !== 0)
+                {
+                    const fieldY = y + blockY;
+                    const fieldX = x + blockX;
+
+                    if (fieldY >= 0 && this.playfield[fieldY][fieldX] !== 0)
+                    {
+                        return true;
+                    }
+                }
+            }
+        }
+
+        return false;
+    }
+
+    createGhostPiece()
+    {
+        const piece = this.activePiece;
+        return{
+            ...piece,
+            blocks: piece.blocks.map(row => [...row]), // копируем массив блоков
+        };
+    }
+    //=======================================================================
+
+    /*
+    Создание пустого поля и новой фигуры
+    */
+    createPlayfield()
+    {
         const playfield = [];
 
-        for (let y = 0; y < 20; y++){
+        for (let y = 0; y < this.playfieldHeight; y++)
+        {
             playfield[y] = [];
-            for(let x = 0; x < 10; x++){
+            for(let x = 0; x < this.playfieldWidth; x++)
+            {
                 playfield[y][x] = 0;
             }
         }
         return playfield;
     }
 
-    setNewActivePiece() {
+    setNewActivePiece()
+    {
         const newPiece = this.pieceManager.getRandomFigure();
 
         return {
             x: Math.floor((this.playfieldWidth - newPiece.size) / 2),
             y: 0,
-            type: newPiece.type,
-            size: newPiece.size,
             leftX: newPiece.leftRightBottom[0][0],
             rightX: newPiece.leftRightBottom[0][1],
             bottomY: newPiece.leftRightBottom[0][2],
             currentWallJump: newPiece.wallJump[0],
-            rotation: 0,
-            blocks: newPiece.blocks,
-            rotations: newPiece.rotations,
-            leftRightBottom: newPiece.leftRightBottom,
-            wallJump: newPiece.wallJump,
-            color: newPiece.color,
-            randomIndex: newPiece.randomIndex
+            ...newPiece
         };
     }
+    //=======================================================================
 
-
+    /*
+    Проверки на коллизию
+    */
     isPieceOutOfBordersOrCollide(horVerFlag, fieldStep)
     {
         const {x, y, leftX, rightX, bottomY} = this.activePiece;
@@ -158,6 +212,61 @@ export default class Game{
         return collide;
     }
 
+    // Обновленный метод проверки коллизий для вращения с учетом смещений
+    isPieceOutOfBordersOrCollideRotate(blocksRotated, leftRightBottom, useOffset = false, offsetX = 0, offsetY = 0)
+    {
+        let {x, y} = this.activePiece;
+
+        if (useOffset)
+        {
+            x += offsetX;
+            y += offsetY;
+        }
+
+        const [leftX, rightX, bottomY] = leftRightBottom;
+        const {playfieldWidth: width, playfieldHeight: height} = this;
+
+        const blocks = blocksRotated;
+        const sizeY = blocks.length;
+        const sizeX = blocks[0].length;
+
+        // Проверка выхода за границы
+        let outOfBorder = ((x + leftX) < 0) || ((x + rightX) >= width) || ((y + bottomY) >= height);
+        if(outOfBorder)
+        {
+            return true;
+        }
+
+        // Проверка столкновения с другими блоками
+        for(let blockY = 0; blockY < sizeY; blockY++)
+        {
+            for(let blockX = 0; blockX < sizeX; blockX++)
+            {
+                if(blocks[blockY][blockX] !== 0) {
+                    const fieldY = y + blockY;
+                    const fieldX = x + blockX;
+
+                    // Проверяем границы
+                    if (fieldX < 0 || fieldX >= width || fieldY >= height)
+                    {
+                        return true;
+                    }
+
+                    // Проверяем столкновение с блоками (только если полеY >= 0)
+                    if (fieldY >= 0 && this.playfield[fieldY][fieldX] !== 0)
+                    {
+                        return true;
+                    }
+                }
+            }
+        }
+        return false;
+    }
+    //=======================================================================
+
+    /*
+    Вращение фигуры
+    */
     rotatePiece()
     {
         let currentPiece = this.activePiece;
@@ -199,52 +308,6 @@ export default class Game{
         }
     }
 
-// Обновленный метод проверки коллизий для вращения с учетом смещений
-    isPieceOutOfBordersOrCollideRotate(blocksRotated, leftRightBottom, useOffset = false, offsetX = 0, offsetY = 0)
-    {
-        let {x, y} = this.activePiece;
-
-        if (useOffset) {
-            x += offsetX;
-            y += offsetY;
-        }
-
-        const [leftX, rightX, bottomY] = leftRightBottom;
-        const {playfieldWidth: width, playfieldHeight: height} = this;
-
-        const blocks = blocksRotated;
-        const sizeY = blocks.length;
-        const sizeX = blocks[0].length;
-
-        // Проверка выхода за границы
-        let outOfBorder = ((x + leftX) < 0) || ((x + rightX) >= width) || ((y + bottomY) >= height);
-        if(outOfBorder) {
-            return true;
-        }
-
-        // Проверка столкновения с другими блоками
-        for(let blockY = 0; blockY < sizeY; blockY++) {
-            for(let blockX = 0; blockX < sizeX; blockX++) {
-                if(blocks[blockY][blockX] !== 0) {
-                    const fieldY = y + blockY;
-                    const fieldX = x + blockX;
-
-                    // Проверяем границы
-                    if (fieldX < 0 || fieldX >= width || fieldY >= height) {
-                        return true;
-                    }
-
-                    // Проверяем столкновение с блоками (только если полеY >= 0)
-                    if (fieldY >= 0 && this.playfield[fieldY][fieldX] !== 0) {
-                        return true;
-                    }
-                }
-            }
-        }
-        return false;
-    }
-
-// Обновленный метод применения вращения
     applyRotation(potentialRotation, offsetX, offsetY) {
         this.activePiece.x += offsetX;
         this.activePiece.y += offsetY;
@@ -258,7 +321,11 @@ export default class Game{
 
         console.log(`Rotation applied with offset: x=${offsetX}, y=${offsetY}`);
     }
+    //=======================================================================
 
+    /*
+    Движение фигуры
+    */
     movePieceLeft()
     {
         let horVerFlag = true;
@@ -294,8 +361,9 @@ export default class Game{
         {
             this.placeOnField();
             let clearedLines = String(this.clearLines());
-            this.updateScoreClearLines(clearedLines);
+            this.updateScoreLines(clearedLines);
             this.updateLevel();
+
             this.activePiece = this.nextPiece;
             this.nextPiece = this.setNewActivePiece();
         }
@@ -312,13 +380,17 @@ export default class Game{
         }
         this.placeOnField();
         let clearedLines = String(this.clearLines());
-        this.updateScoreClearLines(clearedLines);
+        this.updateScoreLines(clearedLines);
         this.updateLevel();
+
         this.activePiece = this.nextPiece;
         this.nextPiece = this.setNewActivePiece();
-
     }
+    //=======================================================================
 
+    /*
+    Изменение состояния игры
+    */
     placeOnField()
     {
         const {x, y} = this.activePiece;
@@ -379,7 +451,8 @@ export default class Game{
         return lines.length;
     }
 
-    updateScoreClearLines(clearedLines){
+    updateScoreLines(clearedLines)
+    {
         if (clearedLines > 0)
         {
             this.score += (this.level + 1) * Game.points[clearedLines];
@@ -388,63 +461,10 @@ export default class Game{
         }
     }
 
-    updateLevel(){
+    updateLevel()
+    {
         this.level = Math.floor(this.lines / 10);
         console.log(this.level);
     }
-
-    calculateGhostPosition() {
-        const ghostPiece = this.createGhostPiece();
-
-        while (!this.isGhostPieceCollide(ghostPiece))
-        {
-            ghostPiece.y += 1;
-        }
-
-        ghostPiece.y -= 1;
-
-        return ghostPiece;
-    }
-
-    isGhostPieceCollide(ghostPiece)
-    {
-        const { x, y, blocks, bottomY } = ghostPiece;
-        const sizeY = blocks.length;
-        const sizeX = blocks[0].length;
-
-        // Проверка достижения дна
-        if (y + bottomY >= this.playfieldHeight)
-        {
-            return true;
-        }
-
-        // Проверка столкновения с другими блоками
-        for (let blockY = 0; blockY < sizeY; blockY++)
-        {
-            for (let blockX = 0; blockX < sizeX; blockX++)
-            {
-                if (blocks[blockY][blockX] !== 0)
-                {
-                    const fieldY = y + blockY;
-                    const fieldX = x + blockX;
-
-                    if (fieldY >= 0 && this.playfield[fieldY][fieldX] !== 0)
-                    {
-                        return true;
-                    }
-                }
-            }
-        }
-
-        return false;
-    }
-
-    createGhostPiece()
-    {
-        const piece = this.activePiece;
-        return{
-            ...piece,
-            blocks: piece.blocks.map(row => [...row]), // копируем массив блоков
-        };
-    }
+    //=======================================================================
 }

@@ -6,7 +6,6 @@ import Controller from './src/controller.js';
 const game = new Game();
 const view = new View( 320, 640, 20, 10);
 const controller = new Controller(game, view);
-controller.firstFrame();
 
 window.game = game;
 window.view = view;
