@@ -37,17 +37,30 @@ export default class View {
     }
 
     renderPlayfield(playfield) {
-        for(let y = 0; y < playfield.length; y++) {
+        for(let y = 0; y < playfield.length; y++)
+        {
             const line = playfield[y];
-            for(let x = 0; x < line.length; x++) {
+            for(let x = 0; x < line.length; x++)
+            {
                 const block = line[x];
-                if(block) {
+                if(block)
+                {
+                    let alpha;
+                    if (block > 0)
+                    {
+                        alpha = 1;
+                    }
+                    else{
+                        alpha = 0.3;
+                    }
+
                     this.renderBlock(
                         x * this.blockWidth,
                         y * this.blockHeight,
                         this.blockWidth,
                         this.blockHeight,
-                        this.colors[block - 1]
+                        this.colors[Math.abs(block) - 1],
+                        alpha
                     );
                 }
             }
@@ -58,8 +71,9 @@ export default class View {
         this.context.clearRect(0, 0, this.canvas.width, this.canvas.height);
     }
 
-    renderBlock(x, y, width, height, color) {
+    renderBlock(x, y, width, height, color, alpha) {
         this.context.fillStyle = color;
+        this.context.globalAlpha = alpha;
         this.context.strokeStyle = 'black';
         this.context.lineWidth = 2;
         this.context.fillRect(x, y, width, height);
