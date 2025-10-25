@@ -32,41 +32,45 @@ export default class Game{
             }
         }
 
-        // 2. ПРОВЕРКА АКТИВНОЙ ФИГУРЫ
-        if (!this.activePiece || !this.activePiece.blocks)
+        // 2. ДОБАВЛЯЕМ ПРИЗРАЧНУЮ ФИГУРУ (если есть активная фигура)
+        if (this.activePiece && this.activePiece.blocks)
         {
-            console.error('Active piece or blocks are undefined');
-            return renderPlayfield;
+            const ghostPiece = this.calculateGhostPosition();
+            this.addPieceToPlayfield(renderPlayfield, ghostPiece, -Math.abs(ghostPiece.randomIndex)); // отрицательные значения для прозрачности
         }
 
-        // 3. ПОЛУЧАЕМ ДАННЫЕ АКТИВНОЙ ФИГУРЫ
-        const { x: fieldX, y: fieldY, blocks, randomIndex } = this.activePiece;
+        // 3. ДОБАВЛЯЕМ АКТИВНУЮ ФИГУРУ
+        if (this.activePiece && this.activePiece.blocks)
+        {
+            this.addPieceToPlayfield(renderPlayfield, this.activePiece, Math.abs(this.activePiece.randomIndex));
+        }
+
+        return renderPlayfield;
+    }
+
+    addPieceToPlayfield(playfield, piece, value)
+    {
+        const { x, y, blocks } = piece;
         const sizeY = blocks.length;
         const sizeX = blocks[0].length;
 
-        // 4. ДОБАВЛЯЕМ АКТИВНУЮ ФИГУРУ НА ПОЛЕ
         for (let blockY = 0; blockY < sizeY; blockY++)
         {
             for (let blockX = 0; blockX < sizeX; blockX++)
             {
                 if (blocks[blockY][blockX])
                 {
-                    const renderY = fieldY + blockY;
-                    const renderX = fieldX + blockX;
+                    const renderY = y + blockY;
+                    const renderX = x + blockX;
 
-                    // Проверяем границы
                     if (renderY >= 0 && renderY < this.playfieldHeight &&
                         renderX >= 0 && renderX < this.playfieldWidth)
                     {
-                        renderPlayfield[renderY][renderX] = blocks[blockY][blockX] * randomIndex;
+                        playfield[renderY][renderX] = value;
                     }
                 }
             }
         }
-
-
-
-        return renderPlayfield;
     }
 
     createPlayfield(){
@@ -336,5 +340,58 @@ export default class Game{
         console.log(this.level);
     }
 
+    calculateGhostPosition() {
+        const ghostPiece = this.createGhostPiece();
 
+        while (!this.isGhostPieceCollide(ghostPiece))
+        {
+            ghostPiece.y += 1;
+        }
+
+        ghostPiece.y -= 1;
+
+        return ghostPiece;
+    }
+
+    isGhostPieceCollide(ghostPiece)
+    {
+        const { x, y, blocks, bottomY } = ghostPiece;
+        const sizeY = blocks.length;
+        const sizeX = blocks[0].length;
+
+        // Проверка достижения дна
+        if (y + bottomY >= this.playfieldHeight)
+        {
+            return true;
+        }
+
+        // Проверка столкновения с другими блоками
+        for (let blockY = 0; blockY < sizeY; blockY++)
+        {
+            for (let blockX = 0; blockX < sizeX; blockX++)
+            {
+                if (blocks[blockY][blockX] !== 0)
+                {
+                    const fieldY = y + blockY;
+                    const fieldX = x + blockX;
+
+                    if (fieldY >= 0 && this.playfield[fieldY][fieldX] !== 0)
+                    {
+                        return true;
+                    }
+                }
+            }
+        }
+
+        return false;
+    }
+
+    createGhostPiece()
+    {
+        const piece = this.activePiece;
+        return{
+            ...piece,
+            blocks: piece.blocks.map(row => [...row]), // копируем массив блоков
+        };
+    }
 }

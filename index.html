@@ -3,47 +3,12 @@
 <head>
     <meta charset="UTF-8">
     <title>TETRIS</title>
-    <style>
-        body
-        {
-            margin: 0;
-            padding: 15px;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            min-height: 100vh;
-            background-image: url('./static/tetris_bg.jpg');
-            background-size: cover;
-            background-position: center;
-            background-repeat: no-repeat;
-            font-family: 'Arial', sans-serif;
-            overflow: hidden; /* Предотвращаем скролл */
-        }
-
-        #root {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            gap: 20px;
-            background: rgba(255, 255, 255, 0.9);
-            padding: 30px;
-            border-radius: 15px;
-            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
-        }
-
-        h1 {
-            margin: 0;
-            color: #333;
-            font-size: 2em;
-            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.1);
-        }
-    </style>
+    <link rel="stylesheet" href="./static/styles.css">
 </head>
 <body>
 <div id="root">
     <h1>TETRIS</h1>
-    <!-- Canvas будет создан JavaScript -->
+    <canvas id="gameCanvas" width="320" height="640"></canvas>
 </div>
 
 <script src="./index.js" type="module"></script>

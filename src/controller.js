@@ -56,4 +56,8 @@ export default class Controller
                 this.upFlag = true;
         }
     }
+
+    firstFrame(){
+        this.view.render(this.game.getState());
+    }
 }
