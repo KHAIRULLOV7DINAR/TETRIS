@@ -9,11 +9,13 @@ body
     align-items: center;
     justify-content: center;
     min-height: 100vh;
-    background-image: url('./tetris_bg.jpg');
-    background-size: cover;
+    /*background-image: url('./tetris_bg.jpg');*/
+    /*background-size: cover;*/
+    background-color: #3f3e66;
     background-position: center;
     background-repeat: no-repeat;
-    font-family: "Tiny5", sans-serif, 'Arial', sans-serif;
+    font-family: "Exo", sans-serif, 'Arial', sans-serif;
+    font-weight: 400;
     overflow: hidden;
 }
 

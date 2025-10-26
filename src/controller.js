@@ -116,11 +116,14 @@ export default class Controller
             return;
         }
 
+        let offSet = this.game.nextPiece.rightX - this.game.nextPiece.leftX + 1;
+        let renderPiece = this.game.nextPiece.type === 'O' ? [[1, 1],[1, 1]] : this.game.nextPiece.blocks;
+
         this.view.render(this.game.getState(),
             {score: this.game.score,
                 lines: this.game.lines,
                 level: this.game.level
-        }, this.game.nextPiece.blocks);
+        }, renderPiece, offSet, this.game.nextPiece.randomIndex);
     }
 
     // Метод для проверки изменения уровня

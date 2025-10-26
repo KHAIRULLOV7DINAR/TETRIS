@@ -29,6 +29,9 @@ export default class View {
         this.canvas.height = this.height;
         this.canvas.style.border = "1px solid black";
 
+        this.nextFigure.width = 128;
+        this.nextFigure.height = 128;
+
         this.blockWidth = this.width / columns;
         this.blockHeight = this.height / rows;
     }
@@ -36,11 +39,11 @@ export default class View {
     /*
     Итерация отрисовки
     */
-    render(playfield, info, nextPiece) {
+    render(playfield, info, nextPiece, length, figureType) {
         this.clearScreen();
         this.renderGrid();
         this.renderPlayfield(playfield);
-        this.renderInfo(info, nextPiece);
+        this.renderInfo(info, nextPiece, length, figureType);
     }
     //=======================================================================я
 
@@ -109,16 +112,19 @@ export default class View {
         }
     }
 
-    renderInfo(info, nextPiece)
+    renderInfo(info, nextPiece, length, figureType)
     {
         const {score, lines, level} = info;
-        this.renderNextPiece(nextPiece);
+        this.renderNextPiece(nextPiece, length, figureType);
         this.renderScore(score);
         this.renderLines(lines);
         this.renderLevel(level);
     }
 
-    renderNextPiece(nextFigure){
+    renderNextPiece(nextFigure, length, figureType){
+        let offSet = (this.nextFigure.width - length * this.blockWidth) / 2
+        console.log('length is ' + length);
+        console.log('offset is ' + offSet);
         for(let y = 0; y < nextFigure.length; y++)
         {
             const line = nextFigure[y];
@@ -130,11 +136,11 @@ export default class View {
                     let alpha = block > 0 ? 1 : 0.3;
 
                     this.renderBlockNext(
-                        x * this.blockWidth,
+                        x  * this.blockWidth + offSet,
                         y * this.blockHeight,
                         this.blockWidth,
                         this.blockHeight,
-                        this.colors[Math.abs(block) - 1],
+                        this.colors[figureType - 1],
                         alpha
                     );
                 }
@@ -212,20 +218,42 @@ export default class View {
 
     renderPause()
     {
+
         this.context.fillStyle = 'white';
         this.context.fillRect(0, this.height * 3 / 8, this.width, this.height / 4);
+
+        this.context.textAlign = 'center';
+        this.context.textBaseline = 'middle';
+        this.context.fillStyle = 'black';
+        this.context.font = ' 2em Exo';
+
+        this.context.fillText('Game is paused', this.width / 2, this.height / 2.15);
     }
 
     renderNewGame()
     {
-        this.context.fillStyle = 'yellow';
+        this.context.fillStyle = 'black';
         this.context.fillRect(0, 0, this.width, this.height);
+
+        this.context.textAlign = 'center';
+        this.context.textBaseline = 'middle';
+        this.context.fillStyle = 'white';
+        this.context.font = ' 2em Exo';
+
+        this.context.fillText('Press ENTER to start', this.width / 2, this.height / 2.15);
     }
 
     renderGameOver()
     {
-        this.context.fillStyle = 'green';
+        this.context.fillStyle = 'black';
         this.context.fillRect(0, 0, this.width, this.height);
+
+        this.context.textAlign = 'center';
+        this.context.textBaseline = 'middle';
+        this.context.fillStyle = 'white';
+        this.context.font = ' 2em Exo';
+
+        this.context.fillText('Game over', this.width / 2, this.height / 2.15);
     }
     //=======================================================================
 }
