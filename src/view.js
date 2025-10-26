@@ -2,7 +2,7 @@ export default class View {
     colors = [
         'red',
         'orange',
-        'yellow',
+        'midnightBlue',
         'green',
         'blue',
         'pink',
@@ -137,7 +137,7 @@ export default class View {
 
                     this.renderBlockNext(
                         x  * this.blockWidth + offSet,
-                        y * this.blockHeight,
+                        y * this.blockHeight + 32,
                         this.blockWidth,
                         this.blockHeight,
                         this.colors[figureType - 1],
@@ -219,12 +219,12 @@ export default class View {
     renderPause()
     {
 
-        this.context.fillStyle = 'white';
+        this.context.fillStyle = 'black';
         this.context.fillRect(0, this.height * 3 / 8, this.width, this.height / 4);
 
         this.context.textAlign = 'center';
         this.context.textBaseline = 'middle';
-        this.context.fillStyle = 'black';
+        this.context.fillStyle = 'white';
         this.context.font = ' 2em Exo';
 
         this.context.fillText('Game is paused', this.width / 2, this.height / 2.15);
