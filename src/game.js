@@ -156,7 +156,7 @@ export default class Game{
 
         return {
             x: Math.floor((this.playfieldWidth - newPiece.size) / 2),
-            y: (newPiece.type === 'I' || newPiece.type === 'O') ? -1 : 0,
+            y: (newPiece.type === 'O') ? -1 : 0,
             leftX: newPiece.leftRightBottom[0][0],
             rightX: newPiece.leftRightBottom[0][1],
             bottomY: newPiece.leftRightBottom[0][2],
