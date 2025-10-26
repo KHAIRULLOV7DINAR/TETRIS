@@ -215,5 +215,17 @@ export default class View {
         this.context.fillStyle = 'white';
         this.context.fillRect(0, this.height * 3 / 8, this.width, this.height / 4);
     }
+
+    renderNewGame()
+    {
+        this.context.fillStyle = 'yellow';
+        this.context.fillRect(0, 0, this.width, this.height);
+    }
+
+    renderGameOver()
+    {
+        this.context.fillStyle = 'green';
+        this.context.fillRect(0, 0, this.width, this.height);
+    }
     //=======================================================================
 }

@@ -36,7 +36,13 @@ body
 }
 
 .info-container {
+    display: flex;
+    flex-direction: column;
     gap: 35px ;
+    padding: 5px;
+    background-color: black;
+    border-radius: 15px;
+    height: fit-content;
 }
 
 .info-canvas {

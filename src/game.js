@@ -2,18 +2,10 @@ import PieceManager from './pieceManager.js';
 
 
 export default class Game{
-    score = 0;
-    lines = 0;
-    level = 0;
-
     playfieldWidth = 10;
     playfieldHeight = 20;
-    playfield = this.createPlayfield();
 
     pieceManager = PieceManager;
-
-    activePiece  = this.setNewActivePiece();
-    nextPiece = this.setNewActivePiece();
 
     static points = {
         '1' : 40,
@@ -21,6 +13,19 @@ export default class Game{
         '3' : 300,
         '4' : 1200
     };
+
+    constructor()
+    {
+        this.score = 0;
+        this.lines = 0;
+        this.level = 0;
+        this.topOut = false;
+
+        this.playfield = this.createPlayfield();
+
+        this.activePiece  = this.setNewActivePiece();
+        this.nextPiece = this.setNewActivePiece();
+    }
 
     /*
     Создание и return поля с зафиксированными полями, падающей фигурой и ее призраокм снизу для класса-отрисоавщика view
@@ -151,7 +156,7 @@ export default class Game{
 
         return {
             x: Math.floor((this.playfieldWidth - newPiece.size) / 2),
-            y: 0,
+            y: (newPiece.type === 'I' || newPiece.type === 'O') ? -1 : 0,
             leftX: newPiece.leftRightBottom[0][0],
             rightX: newPiece.leftRightBottom[0][1],
             bottomY: newPiece.leftRightBottom[0][2],
@@ -350,6 +355,11 @@ export default class Game{
 
     movePieceDown()
     {
+        if (this.topOut)
+        {
+            return;
+        }
+
         let horVerFlag = false;
         let fieldStep = 1;
 
@@ -366,11 +376,20 @@ export default class Game{
 
             this.activePiece = this.nextPiece;
             this.nextPiece = this.setNewActivePiece();
+            if (this.isPieceOutOfBordersOrCollide(true, 0))
+            {
+                this.topOut = true;
+            }
         }
     }
 
     moveToBottom()
     {
+        if (this.topOut)
+        {
+            return;
+        }
+
         let horVerFlag = false;
         let fieldStep = 1;
 
@@ -385,6 +404,10 @@ export default class Game{
 
         this.activePiece = this.nextPiece;
         this.nextPiece = this.setNewActivePiece();
+        if (this.isPieceOutOfBordersOrCollide(true, 0))
+        {
+            this.topOut = true;
+        }
     }
     //=======================================================================
 

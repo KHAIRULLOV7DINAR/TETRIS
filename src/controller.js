@@ -1,3 +1,5 @@
+import Game from './game.js';
+
 export default class Controller
 {
     constructor(game, view)
@@ -8,17 +10,29 @@ export default class Controller
 
         this.upFlag = true;
         this.pauseFlag = false;
+        this.newGameFlag = true;
 
         this.currentLevel = game.level; // Сохраняем текущий уровень
 
-        this.startTimer();
-
         document.addEventListener('keydown', this.handleKeyDown.bind(this));
         document.addEventListener('keyup', this.handleKeyUp.bind(this));
+
+        // this.startTimer();
+        this.view.renderNewGame();
     }
 
     handleKeyDown(event)
     {
+        if (this.newGameFlag)
+        {
+            if (event.key === 'Enter')
+            {
+                this.game = new Game();
+                this.startGame();
+            }
+            return;
+        }
+
         if (this.pauseFlag)
         {
             if (event.key === 'Escape')
@@ -28,7 +42,8 @@ export default class Controller
             return;
         }
 
-        switch (event.key) {
+        switch (event.key)
+        {
             case 'Escape':
                 this.pause();
                 break;
@@ -60,6 +75,12 @@ export default class Controller
         }
     }
 
+    startGame()
+    {
+        this.newGameFlag = false;
+        this.startTimer();
+    }
+
     handleKeyUp(event)
     {
         switch (event.key)
@@ -72,14 +93,9 @@ export default class Controller
         }
     }
 
-    firstFrame()
-    {
-        this.view.render(this.game.getState());
-    }
-
     update()
     {
-        if (this.pauseFlag)
+        if (this.pauseFlag || this.newGameFlag)
         {
             return;
         }
@@ -91,6 +107,15 @@ export default class Controller
     // Новый метод для обновления view и проверки изменения уровня
     updateView()
     {
+        if (this.game.topOut)
+        {
+            this.view.renderGameOver();
+            this.newGameFlag = true;
+        }
+        if (this.pauseFlag || this.newGameFlag) {
+            return;
+        }
+
         this.view.render(this.game.getState(),
             {score: this.game.score,
                 lines: this.game.lines,
@@ -112,10 +137,7 @@ export default class Controller
     {
         this.stopTimer();
         this.pauseFlag = true;
-        this.view.render(this.game.getState(), {score: this.game.score,
-            lines: this.game.lines,
-            level: this.game.level
-        }, this.game.nextPiece.blocks);
+        this.updateView();
         this.view.renderPause();
     }
 
@@ -123,18 +145,12 @@ export default class Controller
     {
         this.startTimer();
         this.pauseFlag = false;
-        this.view.render(this.game.getState(), {score: this.game.score,
-            lines: this.game.lines,
-            level: this.game.level
-        }, this.game.nextPiece.blocks);
+        this.updateView();
     }
 
     startTimer()
     {
-        this.view.render(this.game.getState(), {score: this.game.score,
-            lines: this.game.lines,
-            level: this.game.level
-        }, this.game.nextPiece.blocks);
+        this.updateView();
 
         const speed = this.getCurrentSpeed();
 
