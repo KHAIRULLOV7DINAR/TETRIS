@@ -28,7 +28,7 @@ export default class Controller
             if (event.key === 'Enter' || event.key === 'Escape') {
                 this.restartGame();
             }
-            return; // Блокируем другие обработчики когда модальное окно открыто
+            return;
         }
 
         if (this.newGameFlag)
@@ -112,16 +112,15 @@ export default class Controller
         this.checkLevelChange();
     }
 
-    // Новый метод для обновления view и проверки изменения уровня
-// Новый метод для обновления view и проверки изменения уровня
     updateView()
     {
         if (this.game.topOut)
         {
-            this.handleGameOver(); // ДОБАВЬТЕ ЭТУ СТРОКУ
+            this.handleGameOver();
             return;
         }
-        if (this.pauseFlag || this.newGameFlag) {
+        if (this.pauseFlag || this.newGameFlag)
+        {
             return;
         }
 
@@ -135,39 +134,39 @@ export default class Controller
             }, renderPiece, offSet, this.game.nextPiece.randomIndex);
     }
 
-    handleGameOver() {
+    handleGameOver()
+    {
         this.stopTimer();
         this.newGameFlag = true;
 
-        // Показываем модальное окно
         this.showGameOverModal();
 
         this.view.renderGameOver();
     }
 
-    showGameOverModal() {
+    showGameOverModal()
+    {
         const modal = document.querySelector('.modal');
         const finalScore = document.getElementById('final-score');
 
-        // Обновляем счет
-        if (finalScore) {
+        if (finalScore)
+        {
             finalScore.textContent = this.game.score;
         }
 
-        // Показываем модальное окно
         modal.classList.add('active');
 
-        // Обработчик кнопки рестарта
         const restartBtn = document.getElementById('restart-btn');
-        if (restartBtn) {
+        if (restartBtn)
+        {
             restartBtn.onclick = () => {
                 this.restartGame();
             };
         }
     }
 
-// Скрыть модальное окно
-    hideGameOverModal() {
+    hideGameOverModal()
+    {
         const modal = document.querySelector('.modal');
         modal.classList.remove('active');
     }
@@ -182,7 +181,6 @@ export default class Controller
         this.updateView();
     }
 
-    // Метод для проверки изменения уровня
     checkLevelChange()
     {
         if (this.game.level !== this.currentLevel) {
@@ -232,7 +230,6 @@ export default class Controller
         }
     }
 
-    // Новый метод для перезапуска таймера с новой скоростью
     restartTimerWithNewSpeed()
     {
         if (!this.pauseFlag) {
@@ -242,10 +239,8 @@ export default class Controller
         }
     }
 
-    // Метод для получения текущей скорости на основе уровня
     getCurrentSpeed()
     {
-        // Более плавная таблица скоростей
         const speedTable = {
             0: 1000,   // уровень 0: 1000 мс
             1: 900,    // уровень 1: 900 мс
@@ -270,7 +265,6 @@ export default class Controller
             20: 60,    // уровень 20: 60 мс
         };
 
-        // Для уровней 21+ используем максимальную скорость
         return speedTable[this.game.level] || 50;
     }
 }

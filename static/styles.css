@@ -148,7 +148,7 @@ h1 {
     width: 100%;
     height: 100vh;
     z-index: 999;
-    background-color: rgba(0, 0, 0, 0.8); /* Измените на полупрозрачный черный */
+    background-color: rgba(0, 0, 0, 0.8);
     opacity: 1; /* Уберите прозрачность */
     display: none; /* Сначала скрыто */
     justify-content: center;
@@ -156,7 +156,7 @@ h1 {
 }
 
 .modal.active {
-    display: flex; /* Показываем когда есть класс active */
+    display: flex;
 }
 
 .modal-window {
