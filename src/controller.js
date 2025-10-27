@@ -23,6 +23,14 @@ export default class Controller
 
     handleKeyDown(event)
     {
+        const modal = document.querySelector('.modal');
+        if (modal.classList.contains('active')) {
+            if (event.key === 'Enter' || event.key === 'Escape') {
+                this.restartGame();
+            }
+            return; // Блокируем другие обработчики когда модальное окно открыто
+        }
+
         if (this.newGameFlag)
         {
             if (event.key === 'Enter')
@@ -105,12 +113,13 @@ export default class Controller
     }
 
     // Новый метод для обновления view и проверки изменения уровня
+// Новый метод для обновления view и проверки изменения уровня
     updateView()
     {
         if (this.game.topOut)
         {
-            this.view.renderGameOver();
-            this.newGameFlag = true;
+            this.handleGameOver(); // ДОБАВЬТЕ ЭТУ СТРОКУ
+            return;
         }
         if (this.pauseFlag || this.newGameFlag) {
             return;
@@ -123,7 +132,54 @@ export default class Controller
             {score: this.game.score,
                 lines: this.game.lines,
                 level: this.game.level
-        }, renderPiece, offSet, this.game.nextPiece.randomIndex);
+            }, renderPiece, offSet, this.game.nextPiece.randomIndex);
+    }
+
+    handleGameOver() {
+        this.stopTimer();
+        this.newGameFlag = true;
+
+        // Показываем модальное окно
+        this.showGameOverModal();
+
+        this.view.renderGameOver();
+    }
+
+    showGameOverModal() {
+        const modal = document.querySelector('.modal');
+        const finalScore = document.getElementById('final-score');
+
+        // Обновляем счет
+        if (finalScore) {
+            finalScore.textContent = this.game.score;
+        }
+
+        // Показываем модальное окно
+        modal.classList.add('active');
+
+        // Обработчик кнопки рестарта
+        const restartBtn = document.getElementById('restart-btn');
+        if (restartBtn) {
+            restartBtn.onclick = () => {
+                this.restartGame();
+            };
+        }
+    }
+
+// Скрыть модальное окно
+    hideGameOverModal() {
+        const modal = document.querySelector('.modal');
+        modal.classList.remove('active');
+    }
+
+    restartGame() {
+        this.hideGameOverModal();
+        this.game = new Game();
+        this.newGameFlag = false;
+        this.pauseFlag = false;
+        this.currentLevel = this.game.level;
+        this.startTimer();
+        this.updateView();
     }
 
     // Метод для проверки изменения уровня
