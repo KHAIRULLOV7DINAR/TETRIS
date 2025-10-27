@@ -2,20 +2,50 @@
 <html lang="ru">
 <head>
     <meta charset="UTF-8">
-    <title>Title</title>
+    <title>Tetris</title>
     <link rel="stylesheet" href="./static/login.css">
 </head>
 <body>
 <main>
-    <div class = "login-container">
-        <h1 class = "login-title">TETRIS</h1>
-        <form action="./game.html" class = "login-form">
+    <div class="login-container">
+        <h1 class="login-title">TETRIS</h1>
+        <form action="./game.html" class="login-form" onsubmit="storeUsername(event)">
             <label for="name-input">Введите имя
-                <input type="text" id = "name-input" class = "login-input" placeholder = "Ваше имя">
+                <input type="text" id="name-input" class="login-input" placeholder="Ваше имя" onchange="storeUsernameInput()">
             </label>
-            <button type = "submit" class = "login-button">Подтвердить</button>
+            <button type="submit" class="login-button">Подтвердить</button>
         </form>
     </div>
 </main>
+
+<script>
+    // Функция для сохранения имени при изменении input
+    function storeUsernameInput() {
+        const username = document.getElementById('name-input').value;
+        if (username.trim() !== '') {
+            localStorage.setItem("tetris.username", username);
+        }
+    }
+
+    // Функция для сохранения имени при отправке формы
+    function storeUsername(event) {
+        const username = document.getElementById('name-input').value;
+        if (username.trim() === '') {
+            event.preventDefault(); // Не позволяем перейти если имя пустое
+            alert('Пожалуйста, введите имя');
+            return false;
+        }
+        localStorage.setItem("tetris.username", username);
+        // Форма сама перейдет на game.html
+    }
+
+    // Восстановление имени при загрузке страницы
+    window.addEventListener('DOMContentLoaded', function() {
+        const savedUsername = localStorage.getItem("tetris.username");
+        if (savedUsername) {
+            document.getElementById('name-input').value = savedUsername;
+        }
+    });
+</script>
 </body>
 </html>
