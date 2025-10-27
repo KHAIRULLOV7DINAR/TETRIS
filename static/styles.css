@@ -149,8 +149,8 @@ h1 {
     height: 100vh;
     z-index: 999;
     background-color: rgba(0, 0, 0, 0.8);
-    opacity: 1; /* Уберите прозрачность */
-    display: none; /* Сначала скрыто */
+    opacity: 1;
+    display: none;
     justify-content: center;
     align-items: center;
 }
