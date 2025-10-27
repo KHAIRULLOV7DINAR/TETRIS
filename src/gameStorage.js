@@ -1,204 +1,122 @@
-// game-storage.js
-
-// Обновление имени игрока
-function initPlayerName() {
-    const username = localStorage.getItem("tetris.username");
-    const playerNameElement = document.querySelector('.player-name');
-
-    if (username && username.trim() !== '') {
-        playerNameElement.textContent = username;
-    } else {
-        playerNameElement.textContent = "Игрок";
+// Загрузка данных из localStorage
+export function loadFromStorage()
+{
+    const saved = localStorage.getItem("tetrisGameResults");
+    if (!saved)
+    {
+        return { players: {}, lastPlayer: null };
     }
-
-    console.log("Текущий игрок:", playerNameElement.textContent);
-}
-
-// Функция для сохранения результата игры
-function saveGameResult(score, level, linesCleared) {
-    const username = localStorage.getItem("tetris.username") || "Игрок";
-    const gameResult = {
-        username: username,
-        score: score,
-        level: level,
-        lines: linesCleared,
-        date: new Date().toLocaleString()
-    };
-
-    // Получаем существующие результаты
-    const existingResults = JSON.parse(localStorage.getItem("tetris.results") || "[]");
-
-    // Добавляем новый результат
-    existingResults.push(gameResult);
-
-    // Сортируем по очкам (по убыванию) и сохраняем топ-10
-    existingResults.sort((a, b) => b.score - a.score);
-    const topResults = existingResults.slice(0, 10);
-
-    localStorage.setItem("tetris.results", JSON.stringify(topResults));
-
-    console.log("✅ Результат сохранен:", gameResult);
-
-    // Показываем обновленную таблицу лидеров
-    showLeaderboardInConsole();
-
-    return gameResult;
-}
-
-// Функция для вывода таблицы лидеров в консоль
-function showLeaderboardInConsole() {
-    const leaderboard = JSON.parse(localStorage.getItem("tetris.results") || "[]");
-    const currentUser = localStorage.getItem("tetris.username") || "Игрок";
-
-    console.log("🏆 ТАБЛИЦА ЛИДЕРОВ ТЕТРИС 🏆");
-    console.log("================================");
-
-    if (leaderboard.length === 0) {
-        console.log("   Пока нет результатов");
-        return;
-    }
-
-    leaderboard.forEach((result, index) => {
-        const rank = index + 1;
-        const isCurrentUser = result.username === currentUser;
-        const userMarker = isCurrentUser ? " 👈 ВЫ" : "";
-
-        console.log(
-            `${rank.toString().padStart(2, ' ')}. ${result.username.padEnd(12)} - ${result.score.toString().padStart(6, ' ')} очков (ур. ${result.level}, линии: ${result.lines})${userMarker}`
-        );
-    });
-
-    console.log("================================");
-
-    // Статистика текущего игрока
-    const userResults = leaderboard.filter(result => result.username === currentUser);
-    if (userResults.length > 0) {
-        const bestScore = Math.max(...userResults.map(r => r.score));
-        console.log(`🎯 Ваш лучший результат: ${bestScore} очков`);
-        console.log(`📊 Всего ваших результатов: ${userResults.length}`);
+    try
+    {
+        return JSON.parse(saved);
+    } catch (error)
+    {
+        console.error("Ошибка при чтении из localStorage:", error);
+        return { players: {}, lastPlayer: null };
     }
 }
 
-// Функция для показа модального окна с результатами
-function showGameOverModal(score, level, lines) {
-    // Сохраняем результат
-    const currentResult = saveGameResult(score, level, lines);
-
-    // Создаем модальное окно если его нет
-    createModalIfNotExists();
-
-    // Обновляем информацию о текущем результате
-    document.getElementById('current-score').textContent = score;
-    document.getElementById('current-level').textContent = level;
-    document.getElementById('current-lines').textContent = lines;
-
-    // Показываем таблицу лидеров
-    displayLeaderboardInModal(currentResult.username);
-
-    // Показываем модальное окно
-    document.getElementById('game-over-modal').style.display = 'flex';
+// Сохранение данных в localStorage
+export function saveToStorage(data)
+{
+    localStorage.setItem("tetrisGameResults", JSON.stringify(data));
 }
 
-// Создание модального окна
-function createModalIfNotExists() {
-    if (document.getElementById('game-over-modal')) {
-        return;
+// Сохранение результата игрока
+export function savePlayerResult(playerName, score, lines, level)
+{
+    if (!playerName || typeof score !== 'number')
+    {
+        console.error('Invalid player data:', { playerName, score });
+        return null;
     }
 
-    const modalHTML = `
-        <div id="game-over-modal" class="game-over-modal" style="display: none;">
-            <div class="modal-content">
-                <h2>🎮 Игра окончена!</h2>
-                
-                <div class="current-result">
-                    <h3>Ваш результат:</h3>
-                    <p>Счет: <span id="current-score">0</span></p>
-                    <p>Уровень: <span id="current-level">0</span></p>
-                    <p>Линии: <span id="current-lines">0</span></p>
-                </div>
-                
-                <div class="leaderboard-section">
-                    <h3>🏆 Топ-10 игроков</h3>
-                    <div id="leaderboard-list" class="leaderboard-list">
-                        <!-- Сюда вставится таблица лидеров -->
-                    </div>
-                </div>
-                
-                <div class="modal-buttons">
-                    <button id="restart-game-btn" class="restart-btn">🎯 Начать заново</button>
-                </div>
-            </div>
-        </div>
-    `;
+    try
+    {
+        const data = loadFromStorage();
+        const results = data.players || {};
 
-    document.body.insertAdjacentHTML('beforeend', modalHTML);
-
-    // Добавляем обработчик кнопки
-    document.getElementById('restart-game-btn').addEventListener('click', function() {
-        hideGameOverModal();
-        // Вызываем функцию перезапуска из основной игры
-        if (window.restartGame) {
-            window.restartGame();
+        // Сохраняем лучший результат по очкам
+        if (!results[playerName] || score > results[playerName].score)
+        {
+            results[playerName] =
+                {
+                score: score,
+                lines: lines,
+                level: level,
+                date: new Date().toISOString()
+            };
         }
-    });
-}
 
-// Функция для скрытия модального окна
-function hideGameOverModal() {
-    const modal = document.getElementById('game-over-modal');
-    if (modal) {
-        modal.style.display = 'none';
+        data.players = results;
+        data.lastPlayer = playerName;
+
+        saveToStorage(data);
+        return results;
+    } catch (error)
+    {
+        console.error('Error saving player result:', error);
+        return null;
     }
 }
 
-// Отображение таблицы лидеров в модальном окне
-function displayLeaderboardInModal(currentUsername) {
-    const leaderboard = JSON.parse(localStorage.getItem("tetris.results") || "[]");
-    const leaderboardList = document.getElementById('leaderboard-list');
+// Получение последнего игрока
+export function getLastPlayer()
+{
+    const loginUsername = localStorage.getItem("tetris.username");
+    if (loginUsername)
+    {
+        return loginUsername;
+    }
 
-    if (leaderboard.length === 0) {
-        leaderboardList.innerHTML = '<p class="no-results">Пока нет результатов</p>';
+    const data = loadFromStorage();
+    return data.lastPlayer || null;
+}
+
+// Получение таблицы лидеров
+export function getLeaderboard(limit = 10)
+{
+    const data = loadFromStorage();
+    const results = data.players || {};
+
+    // Преобразуем объект в массив и сортируем по убыванию очков
+    return Object.entries(results)
+        .map(([name, data]) => ({
+            name,
+            score: data.score,
+            lines: data.lines,
+            level: data.level
+        }))
+        .sort((a, b) => b.score - a.score)
+        .slice(0, limit);
+}
+
+// Загрузка таблицы лидеров
+export function loadLeaderboard()
+{
+    const leaderboard = getLeaderboard();
+    const leaderboardElement = document.getElementById("leaderboard-list");
+
+    if (!leaderboardElement) return;
+
+    if (leaderboard.length === 0)
+    {
+        leaderboardElement.innerHTML = '<div class="no-results">Пока нет рекордов. Будьте первым!</div>';
         return;
     }
 
-    leaderboardList.innerHTML = leaderboard.map((result, index) => {
-        const isCurrentUser = result.username === currentUsername;
-        const medal = index === 0 ? '🥇' : index === 1 ? '🥈' : index === 2 ? '🥉' : `${index + 1}.`;
+    const currentPlayer = getLastPlayer();
 
-        return `
-            <div class="leaderboard-item ${isCurrentUser ? 'current-user' : ''}">
-                <span class="rank">${medal}</span>
-                <span class="name">${result.username}</span>
-                <span class="score">${result.score}</span>
-                <span class="details">ур.${result.level}</span>
-            </div>
-        `;
-    }).join('');
+    leaderboardElement.innerHTML = leaderboard
+        .map((player, index) => {
+            const isCurrentUser = player.name === currentPlayer;
+            return `
+                <div class="leaderboard-item ${isCurrentUser ? 'current-user' : ''}">
+                    <span class="leaderboard-rank">${index + 1}.</span>
+                    <span class="leaderboard-name">${player.name}</span>
+                    <span class="leaderboard-score">${player.score}</span>
+                </div>
+            `;
+        })
+        .join('');
 }
-
-// Функция для получения текущей таблицы лидеров
-function getLeaderboard() {
-    return JSON.parse(localStorage.getItem("tetris.results") || "[]");
-}
-
-// Функция для очистки всех результатов (для тестирования)
-function clearAllResults() {
-    localStorage.removeItem("tetris.results");
-    console.log("🗑️ Все результаты очищены");
-    showLeaderboardInConsole();
-}
-
-// Инициализация при загрузке страницы
-document.addEventListener('DOMContentLoaded', function() {
-    initPlayerName();
-    // Создаем модальное окно заранее
-    createModalIfNotExists();
-});
-
-// Делаем функции доступными глобально для использования в index.js
-window.saveGameResult = saveGameResult;
-window.showGameOverModal = showGameOverModal;
-window.hideGameOverModal = hideGameOverModal;
-window.showLeaderboardInConsole = showLeaderboardInConsole;
-window.getLeaderboard = getLeaderboard;
-window.clearAllResults = clearAllResults;

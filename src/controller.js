@@ -1,4 +1,5 @@
 import Game from './game.js';
+import { savePlayerResult, getLastPlayer, loadLeaderboard } from './gameStorage.js';
 
 export default class Controller
 {
@@ -12,20 +13,37 @@ export default class Controller
         this.pauseFlag = false;
         this.newGameFlag = true;
 
-        this.currentLevel = game.level; // Сохраняем текущий уровень
+        this.currentLevel = game.level;
 
         document.addEventListener('keydown', this.handleKeyDown.bind(this));
         document.addEventListener('keyup', this.handleKeyUp.bind(this));
 
-        // this.startTimer();
+        this.initializePlayer();
         this.view.renderNewGame();
+    }
+
+    initializePlayer()
+    {
+        const lastPlayer = getLastPlayer();
+        const playerNameElement = document.getElementById('player-name');
+
+        if (lastPlayer)
+        {
+            playerNameElement.textContent = lastPlayer;
+        } else
+        {
+            const name = prompt('Введите ваше имя:', 'Игрок') || 'Игрок';
+            playerNameElement.textContent = name;
+        }
     }
 
     handleKeyDown(event)
     {
         const modal = document.querySelector('.modal');
-        if (modal.classList.contains('active')) {
-            if (event.key === 'Enter' || event.key === 'Escape') {
+        if (modal.classList.contains('active'))
+        {
+            if (event.key === 'Enter' || event.key === 'Escape')
+            {
                 this.restartGame();
             }
             return;
@@ -139,6 +157,15 @@ export default class Controller
         this.stopTimer();
         this.newGameFlag = true;
 
+        const playerName = document.getElementById('player-name').textContent;
+        const score = this.game.score;
+        const lines = this.game.lines;
+        const level = this.game.level;
+
+        // Сохранение результата
+        savePlayerResult(playerName, score, lines, level);
+
+        // Показ модального окна
         this.showGameOverModal();
 
         this.view.renderGameOver();
@@ -149,11 +176,16 @@ export default class Controller
         const modal = document.querySelector('.modal');
         const finalScore = document.getElementById('final-score');
 
+        // Обновление счета
         if (finalScore)
         {
             finalScore.textContent = this.game.score;
         }
 
+        // Загрузка таблицы рекордов
+        loadLeaderboard();
+
+        // Показ модального окна
         modal.classList.add('active');
 
         const restartBtn = document.getElementById('restart-btn');
@@ -184,7 +216,6 @@ export default class Controller
     checkLevelChange()
     {
         if (this.game.level !== this.currentLevel) {
-            console.log(`Level changed from ${this.currentLevel} to ${this.game.level}`);
             this.currentLevel = this.game.level;
             this.restartTimerWithNewSpeed();
         }
@@ -216,7 +247,6 @@ export default class Controller
             this.intervalID = setInterval(() => {
                 this.update();
             }, speed);
-            console.log(`Timer started with speed: ${speed}ms, level: ${this.game.level}`);
         }
     }
 
@@ -226,14 +256,12 @@ export default class Controller
         {
             clearInterval(this.intervalID);
             this.intervalID = null;
-            console.log('Timer stopped');
         }
     }
 
     restartTimerWithNewSpeed()
     {
         if (!this.pauseFlag) {
-            console.log(`Restarting timer with new speed: ${this.getCurrentSpeed()}ms for level ${this.game.level}`);
             this.stopTimer();
             this.startTimer();
         }
@@ -242,29 +270,11 @@ export default class Controller
     getCurrentSpeed()
     {
         const speedTable = {
-            0: 1000,   // уровень 0: 1000 мс
-            1: 900,    // уровень 1: 900 мс
-            2: 800,    // уровень 2: 800 мс
-            3: 700,    // уровень 3: 700 мс
-            4: 600,    // уровень 4: 600 мс
-            5: 500,    // уровень 5: 500 мс
-            6: 450,    // уровень 6: 450 мс
-            7: 400,    // уровень 7: 400 мс
-            8: 350,    // уровень 8: 350 мс
-            9: 300,    // уровень 9: 300 мс
-            10: 250,   // уровень 10: 250 мс
-            11: 200,   // уровень 11: 200 мс
-            12: 180,   // уровень 12: 180 мс
-            13: 160,   // уровень 13: 160 мс
-            14: 140,   // уровень 14: 140 мс
-            15: 120,   // уровень 15: 120 мс
-            16: 100,   // уровень 16: 100 мс
-            17: 90,    // уровень 17: 90 мс
-            18: 80,    // уровень 18: 80 мс
-            19: 70,    // уровень 19: 70 мс
-            20: 60,    // уровень 20: 60 мс
+            0: 1000, 1: 900, 2: 800, 3: 700, 4: 600, 5: 500,
+            6: 450, 7: 400, 8: 350, 9: 300, 10: 250,
+            11: 200, 12: 180, 13: 160, 14: 140, 15: 120,
+            16: 100, 17: 90, 18: 80, 19: 70, 20: 60,
         };
-
         return speedTable[this.game.level] || 50;
     }
 }

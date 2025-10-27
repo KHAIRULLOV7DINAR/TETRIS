@@ -200,3 +200,77 @@ h1 {
 .restart-btn:active {
     box-shadow: 0 2px 10px rgba(255, 71, 87, 0.3);
 }
+
+.leaderboard {
+    margin: 20px 0;
+    text-align: left;
+}
+
+.leaderboard h3 {
+    color: #ffa502;
+    margin-bottom: 15px;
+    text-align: center;
+    font-size: 1.3em;
+}
+
+.leaderboard-list {
+    background: rgba(255, 255, 255, 0.05);
+    border-radius: 10px;
+    padding: 15px;
+    max-height: 200px;
+    overflow-y: auto;
+    margin-bottom: 20px;
+}
+
+.leaderboard-item {
+    display: flex;
+    justify-content: space-between;
+    padding: 8px 12px;
+    margin-bottom: 5px;
+    background: rgba(255, 255, 255, 0.03);
+    border-radius: 6px;
+}
+
+.leaderboard-item.current-user {
+    background: rgba(255, 71, 87, 0.2);
+    font-weight: bold;
+}
+
+.leaderboard-rank {
+    color: #ffa502;
+    font-weight: bold;
+    margin-right: 10px;
+    min-width: 25px;
+}
+
+.leaderboard-name {
+    color: #ecf0f1;
+    flex-grow: 1;
+}
+
+.leaderboard-score {
+    color: #2ed573;
+    font-weight: bold;
+    margin-left: 15px;
+}
+
+.no-results {
+    color: #95a5a6;
+    font-style: italic;
+    text-align: center;
+    padding: 20px;
+}
+
+.leaderboard-list::-webkit-scrollbar {
+    width: 6px;
+}
+
+.leaderboard-list::-webkit-scrollbar-track {
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 3px;
+}
+
+.leaderboard-list::-webkit-scrollbar-thumb {
+    background: #ff4757;
+    border-radius: 3px;
+}
